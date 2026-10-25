@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>देव दूध डेयरी छबड़ा - ताज़ा दूध एवं डेयरी उत्पाद</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --accent: #22c55e;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+        header { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .logo-area h1 { font-size: 1.4rem; font-weight: bold; }
+        .logo-area p { font-size: 0.8rem; opacity: 0.9; }
+        .header-btns { display: flex; gap: 8px; }
+        .admin-btn, .share-btn { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .product-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .product-row:last-child { border-bottom: none; }
+        .product-info h3 { font-size: 1.05rem; color: var(--text); }
+        .product-info p { font-size: 0.9rem; color: #64748b; font-weight: 600; margin-top: 2px; }
+        .qty-control { display: flex; align-items: center; gap: 12px; }
+        .qty-btn { background: var(--secondary); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .qty-btn:active { transform: scale(0.9); }
+        .qty-display { font-size: 1rem; font-weight: bold; min-width: 25px; text-align: center; }
+        .section-title { font-size: 1.1rem; color: var(--primary); margin-bottom: 10px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .qr-box { text-align: center; background: #f8fafc; padding: 15px; border-radius: 10px; border: 2px dashed #cbd5e1; margin-top: 10px; }
+        .qr-box img { max-width: 180px; height: auto; border-radius: 8px; }
+        .payment-options { display: flex; gap: 15px; margin-top: 15px; }
+        .payment-option { flex: 1; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; text-align: center; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .payment-option.selected { border-color: var(--secondary); background: #eff6ff; color: var(--secondary); }
+        .location-box { background: #fef3c7; border: 1px solid #f59e0b; padding: 12px; border-radius: 8px; font-size: 0.9rem; color: #92400e; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .loc-btn { background: #d97706; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .total-section { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: bold; padding: 10px 0; }
+        .whatsapp-btn { background: var(--accent); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 6px rgba(34, 197, 94, 0.3); }
+        .whatsapp-btn:hover { background: #16a34a; }
+        
+        .tab-container { display: flex; margin-bottom: 15px; background: #e2e8f0; border-radius: 8px; padding: 4px; }
+        .tab-btn { flex: 1; padding: 10px; text-align: center; border: none; background: transparent; font-weight: bold; cursor: pointer; border-radius: 6px; color: #64748b; font-size: 0.95rem; }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .close-btn { float: right; font-size: 1.5rem; font-weight: bold; cursor: pointer; color: #ef4444; }
+        .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .stat-box { background: #f1f5f9; padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-box h4 { font-size: 0.75rem; color: #64748b; }
+        .stat-box span { font-size: 1.1rem; font-weight: bold; color: var(--primary); }
+        .order-card { background: #f8fafc; border-left: 4px solid var(--secondary); padding: 12px; margin-bottom: 10px; border-radius: 6px; font-size: 0.85rem; }
+        .calc-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <h1>देव दूध डेयरी छबड़ा</h1>
+            <p>ताज़ा दूध एवं डेयरी उत्पाद</p>
+        </div>
+        <div class="header-btns">
+            <button class="share-btn" onclick="shareApp()">📤 शेयर</button>
+            <button class="admin-btn" onclick="openAdminLogin()">👤 एडमिन</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- ग्राहक विवरण -->
+        <div class="card">
+            <div class="section-title">👤 ग्राहक विवरण</div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="custName" placeholder="अपना पूरा नाम लिखें" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+                <input type="tel" id="custPhone" placeholder="मोबाइल नंबर (WhatsApp)" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+                <input type="text" id="custColony" placeholder="मोहल्ला / कॉलोनी / वार्ड का नाम लिखें" style="padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+            </div>
+        </div>
+
+        <!-- GPS लोकेशन -->
+        <div class="card">
+            <div class="section-title">📍 डिलीवरी लोकेशन (अनिवार्य)</div>
+            <div class="location-box">
+                <span>दूरी सीमा: डेरी से केवल 6 किलोमीटर के दायरे में ही डिलीवरी संभव है।</span>
+                <button class="loc-btn" onclick="getGPSLocation()">📍 मेरी करंट जीपीएस लोकेशन चुनें</button>
+                <span id="locStatus" style="font-weight: bold; color: #1e293b;">लोकेशन अभी नहीं चुनी गई है।</span>
+            </div>
+        </div>
+
+        <!-- ऑर्डर का प्रकार (सामान्य या मंथली) -->
+        <div class="card" style="padding-bottom: 5px;">
+            <div class="section-title">🛒 ऑर्डर का प्रकार चुनें</div>
+            <div class="tab-container">
+                <button class="tab-btn active" id="tabNormal" onclick="switchMode('normal')">सामान्य आर्डर (Single)</button>
+                <button class="tab-btn" id="tabMonthly" onclick="switchMode('monthly')">मंथली सब्सक्रिप्शन (Monthly)</button>
+            </div>
+        </div>
+
+        <!-- प्रोडक्ट्स लिस्ट -->
+        <div class="card">
+            <div class="section-title" id="productsTitle">🥛 डेयरी उत्पाद चुनें</div>
+            
+            <div class="product-row">
+                <div class="product-info"><h3>गाय का दूध (Cow Milk)</h3><p>₹60 / लीटर</p></div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="changeQty('cowMilk', -1)">-</button>
+                    <span class="qty-display" id="qty-cowMilk">0</span>
+                    <button class="qty-btn" onclick="changeQty('cowMilk', 1)">+</button>
+                </div>
+            </div>
+
+            <div class="product-row">
+                <div class="product-info"><h3>भैंस का दूध (Buffalo Milk)</h3><p>₹60 / लीटर</p></div>
+                <div class="qty-control">
+                    <button class="qty-btn" onclick="changeQty('buffMilk', -1)">-</button>
+                    <span class="qty-display" id="qty-buffMilk">0</span>
+                    <button class="qty-btn" onclick="changeQty('buffMilk', 1)">+</button>
+                </div>
+            </div>
+
+            <div id="extraProducts">
+                <div class="product-row">
+                    <div class="product-info"><h3>ताज़ा दही (Dahi)</h3><p>₹100 / किलो</p></div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="changeQty('dahi', -1)">-</button>
+                        <span class="qty-display" id="qty-dahi">0</span>
+                        <button class="qty-btn" onclick="changeQty('dahi', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="product-row">
+                    <div class="product-info"><h3>ताज़ा छाछ (Chhaach)</h3><p>₹100 / 5 किलो</p></div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="changeQty('chhaach', -1)">-</button>
+                        <span class="qty-display" id="qty-chhaach">0</span>
+                        <button class="qty-btn" onclick="changeQty('chhaach', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="product-row">
+                    <div class="product-info"><h3>शुद्ध मावा (Mawa)</h3><p>₹450 / किलो</p></div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="changeQty('mawa', -1)">-</button>
+                        <span class="qty-display" id="qty-mawa">0</span>
+                        <button class="qty-btn" onclick="changeQty('mawa', 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="product-row">
+                    <div class="product-info"><h3>शुद्ध देसी घी (Ghee)</h3><p>₹900 / किलो</p></div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="changeQty('ghee', -1)">-</button>
+                        <span class="qty-display" id="qty-ghee">0</span>
+                        <button class="qty-btn" onclick="changeQty('ghee', 1)">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ऑनलाइन भुगतान -->
+        <div class="card">
+            <div class="section-title">📱 ऑनलाइन भुगतान (PhonePe / UPI)</div>
+            <p style="text-align: center; font-size: 0.85rem; color: #64748b; margin-bottom: 10px;">QR कोड स्कैन करके भुगतान करें</p>
+            <div class="qr-box">
+                <img src="69810.jpg" alt="UPI QR Code - 8824610997" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=8824610997@fino&pn=DevDuDairy'">
+                <p style="font-weight: bold; margin-top: 8px; color: var(--primary);">UPI ID: 8824610997</p>
+            </div>
+
+            <div class="payment-options">
+                <div class="payment-option selected" id="opt-online" onclick="setPayment('online')">ऑनलाइन भुगतान (UPI)</div>
+                <div class="payment-option" id="opt-cod" onclick="setPayment('cod')">कैश ऑन डिलीवरी (COD)</div>
+            </div>
+        </div>
+
+        <!-- कुल राशि और आर्डर बटन -->
+        <div class="card">
+            <div class="total-section">
+                <span id="totalTitle">कुल राशि (Total Amount):</span>
+                <span id="totalAmount" style="color: var(--secondary);">₹0</span>
+            </div>
+            <button class="whatsapp-btn" onclick="placeOrder()">
+                <span>💬 व्हाट्सएप पर ऑर्डर भेजें</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- एडमिन पैनल मॉडल -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeAdminModal()">&times;</span>
+            <h2 style="color: var(--primary); margin-bottom: 15px;">🔒 ओनर एडमिन पैनल</h2>
+            
+            <div id="loginSection">
+                <p style="margin-bottom: 10px; font-size: 0.9rem;">एडमिन पासवर्ड दर्ज करें:</p>
+                <input type="password" id="adminPass" placeholder="पासवर्ड लिखें" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 10px;">
+                <button onclick="verifyAdmin()" style="background: var(--primary); color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">लॉगिन करें</button>
+            </div>
+
+            <div id="dashboardSection" style="display: none;">
+                <div class="admin-stats">
+                    <div class="stat-box"><h4>कुल</h4><span id="statTotal">0</span></div>
+                    <div class="stat-box"><h4>पेंडिंग</h4><span id="statPending">0</span></div>
+                    <div class="stat-box"><h4>डिलिवर्ड</h4><span id="statDelivered">0</span></div>
+                    <div class="stat-box"><h4>रद्द</h4><span id="statCancelled">0</span></div>
+                </div>
+
+                <h3 style="font-size: 1rem; margin: 15px 0 10px 0; color: var(--secondary);">📋 प्राप्त ऑर्डर लिस्ट</h3>
+                <div id="adminOrdersList" style="max-height: 250px; overflow-y: auto;"></div>
+
+                <!-- इकामिल्क कैलकुलेटर -->
+                <div class="calc-box">
+                    <h3 style="font-size: 0.95rem; color: #166534; margin-bottom: 8px;">🥛 Ekomilk Fat & SNF कैलकुलेटर</h3>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="number" id="fatVal" placeholder="Fat %" style="width: 50%; padding: 8px; border: 1px solid #bbf7d0; border-radius: 4px;">
+                        <input type="number" id="snfVal" placeholder="SNF %" style="width: 50%; padding: 8px; border: 1px solid #bbf7d0; border-radius: 4px;">
+                    </div>
+                    <button onclick="calculateMilkRate()" style="background: #16a34a; color: white; border: none; width: 100%; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer;">रेट कैलकुलेट करें</button>
+                    <p id="calcResult" style="margin-top: 8px; font-weight: bold; font-size: 0.9rem; color: #14532d;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DAIRY_LAT = 24.6500;
+        const DAIRY_LNG = 76.8333;
+        const MAX_RADIUS_KM = 6.0;
+
+        let orderMode = 'normal';
+        let cart = { cowMilk: 0, buffMilk: 0, dahi: 0, chhaach: 0, mawa: 0, ghee: 0 };
+        const prices = { cowMilk: 60, buffMilk: 60, dahi: 100, chhaach: 100, mawa: 450, ghee: 900 };
+
+        let selectedPayment = 'online';
+        let userLat = null;
+        let userLng = null;
+        let orders = JSON.parse(localStorage.getItem('dev_dairy_orders')) || [];
+
+        function switchMode(mode) {
+            orderMode = mode;
+            document.getElementById('tabNormal').classList.toggle('active', mode === 'normal');
+            document.getElementById('tabMonthly').classList.toggle('active', mode === 'monthly');
+            document.getElementById('extraProducts').style.display = (mode === 'monthly') ? 'none' : 'block';
+            document.getElementById('productsTitle').innerText = (mode === 'monthly') ? '📅 मंथली दूध सब्सक्रिप्शन चुनें (प्रति दिन)' : '🥛 डेयरी उत्पाद चुनें';
+            
+            cart = { cowMilk: 0, buffMilk: 0, dahi: 0, chhaach: 0, mawa: 0, ghee: 0 };
+            document.querySelectorAll('.qty-display').forEach(el => el.innerText = '0');
+            updateTotal();
+        }
+
+        function changeQty(item, delta) {
+            cart[item] = Math.max(0, cart[item] + delta);
+            document.getElementById(`qty-${item}`).innerText = cart[item];
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+            if (orderMode === 'normal') {
+                total = (cart.cowMilk * prices.cowMilk) + (cart.buffMilk * prices.buffMilk) + (cart.dahi * prices.dahi) + (cart.chhaach * (prices.chhaach / 5)) + (cart.mawa * prices.mawa) + (cart.ghee * prices.ghee);
+                document.getElementById('totalAmount').innerText = `₹${total}`;
+                document.getElementById('totalTitle').innerText = 'कुल राशि (Total Amount):';
+            } else {
+                let dailyLiters = cart.cowMilk + cart.buffMilk;
+                let dailyAmount = (cart.cowMilk * prices.cowMilk) + (cart.buffMilk * prices.buffMilk);
+                let monthlyTotal = dailyAmount * 30;
+                document.getElementById('totalAmount').innerText = `₹${monthlyTotal} (30 दिन)`;
+                document.getElementById('totalTitle').innerText = `मंथली कुल (रोजाना ${dailyLiters} लीटर):`;
+            }
+        }
+
+        function setPayment(method) {
+            selectedPayment = method;
+            document.getElementById('opt-online').classList.toggle('selected', method === 'online');
+            document.getElementById('opt-cod').classList.toggle('selected', method === 'cod');
+        }
+
+        function getGPSLocation() {
+            const status = document.getElementById('locStatus');
+            if (!navigator.geolocation) {
+                status.innerText = "आपका ब्राउज़र GPS सपोर्ट नहीं करता है।";
+                return;
+            }
+            status.innerText = "लोकेशन खोजी जा रही है...";
+            navigator.geolocation.getCurrentPosition(position => {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                let distance = calculateDistance(DAIRY_LAT, DAIRY_LNG, userLat, userLng);
+                if (distance <= MAX_RADIUS_KM) {
+                    status.innerHTML = `✅ लोकेशन मिल गई! (दूरी: ${distance.toFixed(1)} किमी)`;
+                    status.style.color = "#15803d";
+                } else {
+                    status.innerHTML = `❌ दूरी ${distance.toFixed(1)} किमी है। 6 किमी से बाहर डिलीवरी नहीं होगी!`;
+                    status.style.color = "#b91c1c";
+                    userLat = null; userLng = null;
+                }
+            }, () => {
+                status.innerText = "लोकेशन प्राप्त करने में असफल। कृपया GPS ऑन करें।";
+            });
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            let R = 6371;
+            let dLat = deg2rad(lat2 - lat1);
+            let dLon = deg2rad(lon2 - lon1);
+            let a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function deg2rad(deg) { return deg * (Math.PI/180); }
+
+        function shareApp() {
+            let shareText = "🥛 *देव दूध डेयरी छबड़ा* 🥛\nताज़ा दूध, दही, छाछ, मावा और घी ऑनलाइन आर्डर करें!\nअभी ऐप खोलें और आर्डर दें: " + window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: 'देव दूध डेयरी छबड़ा', text: shareText, url: window.location.href }).catch(() => {});
+            } else {
+                prompt("इस लिंक को कॉपी करके शेयर करें:", window.location.href);
+            }
+        }
+
+        function placeOrder() {
+            let name = document.getElementById('custName').value.trim();
+            let phone = document.getElementById('custPhone').value.trim();
+            let colony = document.getElementById('custColony').value.trim();
+
+            if (!name || !phone || !colony) {
+                alert("कृपया अपना नाम, मोबाइल नंबर और कॉलोनी का नाम भरें!");
+                return;
+            }
+            if (userLat === null || userLng === null) {
+                alert("कृपया पहले अपनी वैध GPS लोकेशन चुनें (6 किमी के भीतर)।");
+                return;
+            }
+
+            let totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
+            if (totalItems === 0) {
+                alert("कृपया कम से कम एक उत्पाद या दूध की मात्रा चुनें!");
+                return;
+            }
+
+            let totalAmount = 0;
+            let orderTypeLabel = (orderMode === 'monthly') ? '📅 मंथली सब्सक्रिप्शन (30 दिन)' : '🛒 सामान्य आर्डर';
+
+            if (orderMode === 'normal') {
+                totalAmount = (cart.cowMilk * prices.cowMilk) + (cart.buffMilk * prices.buffMilk) + (cart.dahi * prices.dahi) + (cart.chhaach * (prices.chhaach / 5)) + (cart.mawa * prices.mawa) + (cart.ghee * prices.ghee);
+            } else {
+                totalAmount = ((cart.cowMilk * prices.cowMilk) + (cart.buffMilk * prices.buffMilk)) * 30;
+            }
+
+            let orderData = {
+                id: 'DEV-' + Math.floor(1000 + Math.random() * 9000),
+                name, phone, colony,
+                type: orderTypeLabel,
+                items: {...cart},
+                total: totalAmount,
+                payment: selectedPayment.toUpperCase(),
+                lat: userLat, lng: userLng,
+                status: 'Pending',
+                time: new Date().toLocaleTimeString()
+            };
+
+            orders.push(orderData);
+            localStorage.setItem('dev_dairy_orders', JSON.stringify(orders));
+
+            let msg = `*${orderTypeLabel} - देव दूध डेयरी छबड़ा*%0A` +
+                      `🆔 आर्डर आईडी: ${orderData.id}%0A` +
+                      `👤 नाम: ${name}%0A` +
+                      `📞 फोन: ${phone}%0A` +
+                      `📍 कॉलोनी: ${colony}%0A` +
+                      `-------------------%0A`;
+            if(cart.cowMilk) msg += `🥛 गाय का दूध: ${cart.cowMilk} लीटर${orderMode==='monthly'?' प्रतिदिन':''}%0A`;
+            if(cart.buffMilk) msg += `🐃 भैंस का दूध: ${cart.buffMilk} लीटर${orderMode==='monthly'?' प्रतिदिन':''}%0A`;
+            if(orderMode === 'normal') {
+                if(cart.dahi) msg += `🥣 दही: ${cart.dahi} किलो%0A`;
+                if(cart.chhaach) msg += `🥛 छाछ: ${cart.chhaach * 5} किलो%0A`;
+                if(cart.mawa) msg += `🧈 मावा: ${cart.mawa} किलो%0A`;
+                if(cart.ghee) msg += `🫙 घी: ${cart.ghee} किलो%0A`;
+            }
+            msg += `-------------------%0A` +
+                   `💰 कुल राशि: ₹${totalAmount}${orderMode==='monthly'?' (30 दिन का)':''}%0A` +
+                   `💳 भुगतान: ${orderData.payment}%0A` +
+                   `📍 मैप लोकेशन: https://maps.google.com/?q=${userLat},${userLng}`;
+
+            window.open(`https://wa.me/918824610997?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function openAdminLogin() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        function verifyAdmin() {
+            let pass = document.getElementById('adminPass').value;
+            if (pass === 'R215') {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
+                loadAdminDashboard();
+            } else {
+                alert('गलत पासवर्ड! कृपया सही पासवर्ड (R215) दर्ज करें।');
+            }
+        }
+
+        function loadAdminDashboard() {
+            orders = JSON.parse(localStorage.getItem('dev_dairy_orders')) || [];
+            let pending = orders.filter(o => o.status === 'Pending').length;
+            let delivered = orders.filter(o => o.status === 'Delivered').length;
+            let cancelled = orders.filter(o => o.status === 'Cancelled').length;
+
+            document.getElementById('statTotal').innerText = orders.length;
+            document.getElementById('statPending').innerText = pending;
+            document.getElementById('statDelivered').innerText = delivered;
+            document.getElementById('statCancelled').innerText = cancelled;
+
+            let listHtml = '';
+            orders.slice().reverse().forEach((o, index) => {
+                let realIdx = orders.length - 1 - index;
+                listHtml += `
+                    <div class="order-card">
+                        <strong>${o.id} - ${o.name} (${o.phone})</strong> [${o.type || 'सामान्य'}]<br>
+                        📍 कॉलोनी: <b>${o.colony}</b> | राशि: <b>₹${o.total}</b> (${o.payment})<br>
+                        स्थिति: <span style="color: ${o.status=='Pending'?'orange':o.status=='Delivered'?'green':'red'}">${o.status}</span><br>
+                        <a href="https://maps.google.com/?q=${o.lat},${o.lng}" target="_blank" style="color: #2563eb; font-weight: bold; text-decoration: underline;">🗺️ Google Map पर रास्ता देखें</a><br>
+                        <div style="margin-top: 6px; display: flex; gap: 5px;">
+                            <button onclick="updateStatus(${realIdx}, 'Delivered')" style="background: #22c55e; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✓ डिलिवर्ड</button>
+                            <button onclick="updateStatus(${realIdx}, 'Cancelled')" style="background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">✕ रद्द करें</button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('adminOrdersList').innerHTML = listHtml || '<p style="text-align: center; color: #64748b;">कोई ऑर्डर नहीं है।</p>';
+        }
+
+        function updateStatus(index, status) {
+            orders[index].status = status;
+            localStorage.setItem('dev_dairy_orders', JSON.stringify(orders));
+            loadAdminDashboard();
+        }
+
+        function calculateMilkRate() {
+            let fat = parseFloat(document.getElementById('fatVal').value);
+            let snf = parseFloat(document.getElementById('snfVal').value);
+            if (isNaN(fat) || isNaN(snf)) {
+                document.getElementById('calcResult').innerText = "कृपया सही Fat और SNF वैल्यू भरें!";
+                return;
+            }
+            let calculatedRate = (fat * 7.5) + (snf * 2.5);
+            document.getElementById('calcResult').innerText = `अनुमानित दूध रेट: ₹${calculatedRate.toFixed(2)} प्रति लीटर`;
+        }
+    </script>
+</body>
+</html>
